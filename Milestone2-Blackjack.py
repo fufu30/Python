@@ -2,7 +2,7 @@ import random
 #Global Variables
 
 values = {'Two':2, 'Three':3, 'Four':4, 'Five':5, 'Six':6, 'Seven':7, 'Eight':8, 'Nine':9, 'Ten':10, 'Jack':10,
-         'Queen':10, 'King':10, 'Ace':11, 'Ace':1}
+         'Queen':10, 'King':10, 'Ace':11,}
 suits = ('Hearts', 'Diamonds', 'Spades', 'Clubs')
 ranks = ('Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Jack', 'Queen', 'King', 'Ace')
 
@@ -76,8 +76,17 @@ class Player():
 	def hit(self,new_cards):
 		self.cards.append(new_cards)
 	
-	def stay(self):
-		pass
+	def aces_check_and_adjust(self):
+		ace_count_player = 0
+		for item in self.cards:
+			if item.rank =="Ace":
+				ace_count_player += 1
+		while self.value_count > 21 and ace_count_player != 0:
+			self.value_count -=10
+			ace_count_player -=1
+		else:
+			pass
+
 
 
 class Dealer():
@@ -91,15 +100,17 @@ class Dealer():
 	
 	def hit_dealer(self,new_cards):
 		self.cards.append(new_cards)
-	
-	def stay(self):
-		pass
-		
 
-
-
-
-
+	def aces_check_and_adjust(self):
+		ace_count_dealer = 0
+		for item in self.cards:
+			if item.rank =="Ace":
+				ace_count_dealer += 1
+		while self.value_count > 21 and ace_count_dealer != 0:
+			self.value_count -=10
+			ace_count_dealer-=1
+		else:
+			pass
 
 
 #Game setup
@@ -115,6 +126,8 @@ game_on = True
 
 
 while game_on == True:
+
+	game_decision = "Y"
 
 	Playing_Deck = Deck()
 	Playing_Deck.shuffle_deck()
@@ -181,7 +194,10 @@ while game_on == True:
 		if reg_player.value_count == 21:
 			print("Your cards's combined value is 21. Blackjack.")
 
-		elif reg_player.value_count > 21:
+		#Over 21 check reg_player
+		reg_player.aces_check_and_adjust()
+
+		if reg_player.value_count > 21:
 			print(f"Your cards' combined value is bigger than 21, it's: {reg_player.value_count}")
 			print(f"You loose! Casino takes the money! You have {reg_player_acc.balance} left")
 			break
@@ -198,16 +214,23 @@ while game_on == True:
 		#Dealer action
 
 		while Dealer.value_count < 21 and Dealer.value_count < reg_player.value_count :
-			hit_dealer(Playing_Deck.deal_one())
-			Dealer.value_count += Dealer_cards[-1]
+			Dealer.hit_dealer(Playing_Deck.deal_one())
+			Dealer.value_count += Dealer.cards[-1].value
 			print("The Dealer's new cards are:")
 			for item in Dealer.cards:
 				print(item)
 			print(f"They are now worth combined: {Dealer.value_count}")
 
 		#checking results
+		Dealer.aces_check_and_adjust()
+		
+		if Dealer.value_count > 21:
+			print(f"The Dealer's card's combined value is bigger than 21, it's: {reg_player.value_count} ")
+			reg_player_acc.add_money(player_bet_int*(3/2))
+			print(f" You win! You now have {reg_player_acc.balance}, {player_bet_int*(3/2)} more than before.")
+			break
 
-		if Dealer.value_count > reg_player.value_count and Dealer.value_count <= 21:
+		elif Dealer.value_count > reg_player.value_count and Dealer.value_count <= 21:
 			print(f" The Dealer's card have a higher total value: {Dealer.value_count} than your cards {reg_player.value_count}.")
 			print(f"You loose! Casino takes the money! You have {reg_player_acc.balance} left")
 			break
@@ -219,20 +242,14 @@ while game_on == True:
 			print(f" You win! You now have {reg_player_acc.balance}, {player_bet_int*(3/2)} more than before.")
 			break
 
-		elif Dealer.value_count > 21:
-			print(f"The Dealer's card's combined value is bigger than 21, it's: {reg_player.value_count} ")
-			reg_player_acc.add_money(player_bet_int*(3/2))
-			print(f" You win! You now have {reg_player_acc.balance}, {player_bet_int*(3/2)} more than before.")
-			break
-
-
 		elif reg_player.value_count == Dealer.value_count:
 			print(f"Your and the dealer's cards have the same value: {Dealer.value_count}. It's a draw")
 			reg_player_acc.add_money(player_bet_int)
 			print(f"You get your money back! You have {reg_player_acc.balance} left")
 			break
 
-	while game_decision != "Y" and != "N":
+	game_decision = 'N'
+	while game_decision != "Y" and game_decision != "N":
 		game_decision = input("Do you want to play another round? Yes(Y) or No(N)")
 		print("Please try again! Please input either 'Y' for Yes or 'N' for No")
 	if game_decision == "Y":
