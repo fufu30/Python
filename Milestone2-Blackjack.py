@@ -6,22 +6,29 @@ values = {'Two':2, 'Three':3, 'Four':4, 'Five':5, 'Six':6, 'Seven':7, 'Eight':8,
 suits = ('Hearts', 'Diamonds', 'Spades', 'Clubs')
 ranks = ('Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Jack', 'Queen', 'King', 'Ace')
 
+mon_enough = False
 # Banc account
 class Banc_acc():
-	def __init__(self,owner, balance):
+
+	def __init__(self,owner,balance):
 		self.owner = owner
 		self.balance = balance
 	
-	def add_money(money_in):
+	def add_money(self,money_in):
 		self.balance += money_in
 		print("Money successfully withdrawn")
 
-	def withdraw_money(money_out):
+	def withdraw_money(self,money_out):
+		global mon_enough	
 		if money_out > self.balance:
 			print("There is not enough money in your account")
+			mon_enough = False
 		if money_out <= self.balance:
-			balance -= money_out
+			self.balance -= money_out
 			print("Money successfully withdrawn")
+			mon_enough = True
+	def __str__(self):
+		return f'Your Banc account has a balance of {self.balance}'
 
 #Cards
 class Card():
@@ -97,6 +104,7 @@ class Dealer():
 
 #Game setup
 reg_player = Player("You")
+reg_player_acc = Banc_acc("You",250)
 
 Dealer = Dealer()
 
@@ -109,14 +117,23 @@ Playing_Deck.shuffle_deck()
 
 	
 while game_on == True: 
+	print(f"\n{reg_player_acc}")
+	
+	while mon_enough == False:
+		player_bet = input("How much do you want to bet? ")
+
+		if player_bet.isdigit() == False:
+			print("Please provide a digit")
+		else:
+			player_bet_int = int(player_bet)
+			reg_player_acc.withdraw_money(player_bet_int)
+
+
 
 	for n in range(2):
 		reg_player.cards.append(Playing_Deck.deal_one())
 		Dealer.cards.append(Playing_Deck.deal_one())
-	'''
-	Bettings from the player with an input a type(int) or .digit check and
-	if it's bigger than balance is checked by method, still try again has to be implemented
-	'''	
+
 
 	print(f"\nThose are the Your cards: ")
 	for item in reg_player.cards:
@@ -149,10 +166,10 @@ while game_on == True:
 		if user_input == "hit":
 			reg_player.hit(Playing_Deck.deal_one())
 			reg_player.value_count += reg_player.cards[-1].value
-			print(f"\nThose are Your cards: ")
+			print(f"\nThose are Your cards: \n")
 			for item in reg_player.cards:
 				print(item)
-			print(f"The current sum of values is: {reg_player.value_count}")
+			print(f"\nThe current sum of values is: {reg_player.value_count}")
 
 
 		if user_input == "stay":
@@ -162,10 +179,14 @@ while game_on == True:
 		print("Your cards's combined value is 21. Blackjack.")
 
 	elif reg_player.value_count > 21:
-		print(f"Your cards' combined value is bigger than 21, it's: {reg_player.value_count} ")
+		print(f"Your cards' combined value is bigger than 21, it's: {reg_player.value_count}")
+		print("You loose")
 		break
 	
 	print(f"The Dealer's second card is {Dealer.cards[1]}, so he has a {Dealer.cards[0]} and a {Dealer.cards[1]}")
+	for item in Dealer.cards:
+		Dealer.value_count += Dealer.cards[-1].value
+	print(f"The Dealer's card's are worth {Dealer.value_count}")
 
 	for item in Dealer.cards:
 		Dealer.value_count += item.value
@@ -175,7 +196,7 @@ while game_on == True:
 		Dealer.value_count += Dealer_cards[-1]
 
 	if Dealer.value_count > reg_player.value_count:
-		print(f" The Dealer's card have a higher total value: {Dealer.value_count} than your cards {value_count_player}. \nYou loose! ")
+		print(f" The Dealer's card have a higher total value: {Dealer.value_count} than your cards {reg_player.value_count}. \nYou loose! ")
 		#Take money from the pot 
 
 	elif Dealer.value_count > 21:
