@@ -60,19 +60,14 @@ class Deck():
 class Player():
 	def __init__(self,name):
 		self.name = name
-	def remove_one(self):
-		return self.all_cards.pop(0)
+		self.cards = []
+		self.value_count = 0
 
-	def add_cards(self,new_cards):
-		if type(new_cards) == type([]):
-			self.all_cards.extend(new_cards)
-		else:
-			self.all_cards.append(new_cards)
 	def __str__():
 		return f'This is player {self.name}'
 	
-	def hit(self):
-		self.all_cards.append(new_cards)
+	def hit(self,new_cards):
+		self.cards.append(new_cards)
 	
 	def stay(self):
 		pass
@@ -80,30 +75,31 @@ class Player():
 
 class Dealer():
 	def __init__(self):
-		pass
-	def remove_one(self):
-		return self.all_cards.pop(0)
-    
-	def add_cards(self,new_cards):
-		if type(new_cards) == type([]):
-			self.all_cards.extend(new_cards)
-		else:
-			self.all_cards.append(new_cards)
+		self.name = "Dealer"
+		self.cards = []
+		self.value_count = 0
 
-	def hit_dealer(self):
-		self.all_cards.append(new_cards)
-			
+	def __str__():
+		return 'This is the Dealer'
+	
+	def hit_dealer(self,new_cards):
+		self.cards.append(new_cards)
+	
+	def stay(self):
+		pass
+		
+
+
+
+
+
 
 
 #Game setup
 reg_player = Player("You")
-reg_player_cards = []
-value_count_player = 0
-
 
 Dealer = Dealer()
-Dealer_cards = []
-value_count_dealer = 0
+
 
 #Game starts
 game_on = True
@@ -115,38 +111,35 @@ Playing_Deck.shuffle_deck()
 while game_on == True: 
 
 	for n in range(2):
-		reg_player_cards.append(Playing_Deck.deal_one())
-		Dealer_cards.append(Playing_Deck.deal_one())
+		reg_player.cards.append(Playing_Deck.deal_one())
+		Dealer.cards.append(Playing_Deck.deal_one())
 	'''
 	Bettings from the player with an input a type(int) or .digit check and
 	if it's bigger than balance is checked by method, still try again has to be implemented
 	'''	
 
-	print(f"\nThose are the Player's cards: ")
-	for item in reg_player_cards:
+	print(f"\nThose are the Your cards: ")
+	for item in reg_player.cards:
 		print(item)
-	for item in reg_player_cards:
-		value_count_player += item.value
-	print(f"The current sum of values is: {value_count_player}")
+	
+	for item in reg_player.cards:
+		reg_player.value_count += item.value
+	print(f"The current sum of values is: {reg_player.value_count}")
 
-	print(f'\nThose are the Dealers cards:\n {Dealer_cards[0]} and the other one is hidden')
+	print(f'\nThose are the Dealers cards:\n {Dealer.cards[0]} and the other one is hidden')
 
 	
 	# game after cards are dealt
 
-	while value_count_player < 21:
+	while reg_player.value_count < 21:
 		
 		# user input and check whether it is valid
 
 		while True:
-			user_input = input("Do you want to hit or stay")
+			user_input = input("Do you want to hit or stay? ")
 
-			if type(user_input) != str:
-				print("please provide a string")
-				continue 
-
-			if user_input != "hit" or user_input != "stay":
-				print("Please provide either 'hit' or 'stay'.\nPS:check the whitespaces")
+			if user_input != "hit" and user_input != "stay":
+				print("Please provide either 'hit' or 'stay'.\nPS:check the whitespaces\n")
 				continue
 			else:
 				break
@@ -154,39 +147,45 @@ while game_on == True:
 		#Input execution
 
 		if user_input == "hit":
-			reg_player.hit()
-			value_count_player += reg_player_cards[-1]
+			reg_player.hit(Playing_Deck.deal_one())
+			reg_player.value_count += reg_player.cards[-1].value
+			print(f"\nThose are Your cards: ")
+			for item in reg_player.cards:
+				print(item)
+			print(f"The current sum of values is: {reg_player.value_count}")
+
 
 		if user_input == "stay":
 			break
 	
-	elif value_count_player == 21:
+	if reg_player.value_count == 21:
 		print("Your cards's combined value is 21. Blackjack.")
 
-	elif value_count_player > 21:
-		print(f"Your cards' combined value is bigger than 21, it's: {reg_player_cards.value} ")
+	elif reg_player.value_count > 21:
+		print(f"Your cards' combined value is bigger than 21, it's: {reg_player.value_count} ")
+		break
 	
-	print(f"The Dealer's second card is {Dealer_cards[1]}")
+	print(f"The Dealer's second card is {Dealer.cards[1]}, so he has a {Dealer.cards[0]} and a {Dealer.cards[1]}")
 
-	for item in Dealer_cards:
-		value_count_dealer += item.value
+	for item in Dealer.cards:
+		Dealer.value_count += item.value
 
-	while value_count_dealer < 21 or value_count_dealer < value_count_player :
-		hit_dealer()
-		value_count_dealer += Dealer_cards[-1]
+	while Dealer.value_count < 21 and Dealer.value_count < reg_player.value_count :
+		hit_dealer(Playing_Deck.deal_one())
+		Dealer.value_count += Dealer_cards[-1]
 
-	elif value_count_dealer > value_count_player:
-		print(f" The Dealer's card have a higher total value: {value_count_dealer} than your cards {value_count_player}. \nYou loose! ")
+	if Dealer.value_count > reg_player.value_count:
+		print(f" The Dealer's card have a higher total value: {Dealer.value_count} than your cards {value_count_player}. \nYou loose! ")
 		#Take money from the pot 
 
-	elif value_count_dealer > 21:
-		print(f"The Dealer's card's combined value is bigger than 21, it's: {reg_player_cards.value} ")
+	elif Dealer.value_count > 21:
+		print(f"The Dealer's card's combined value is bigger than 21, it's: {reg_player.value_count} ")
 		print(" You win")
 		#deposit money into player account
 
-	elif value_count_player == value_count_dealer:
-		print(f"Your and the dealer's cards have the same value: {value_count_dealer}. It's a draw")
-	
+	elif reg_player.value_count == Dealer.value_count:
+		print(f"Your and the dealer's cards have the same value: {Dealer.value_count}. It's a draw")
+
 
 
 
