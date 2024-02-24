@@ -16,7 +16,7 @@ class Banc_acc():
 	
 	def add_money(self,money_in):
 		self.balance += money_in
-		print("Money successfully withdrawn")
+		print("Money successfully deposited\n")
 
 	def withdraw_money(self,money_out):
 		global mon_enough	
@@ -180,32 +180,54 @@ while game_on == True:
 
 	elif reg_player.value_count > 21:
 		print(f"Your cards' combined value is bigger than 21, it's: {reg_player.value_count}")
-		print("You loose")
+		print(f"You loose! Casino takes the money! You have {reg_player_acc.balance} left")
 		break
 	
-	print(f"The Dealer's second card is {Dealer.cards[1]}, so he has a {Dealer.cards[0]} and a {Dealer.cards[1]}")
-	for item in Dealer.cards:
-		Dealer.value_count += Dealer.cards[-1].value
-	print(f"The Dealer's card's are worth {Dealer.value_count}")
+	#Dealer playing
 
+	#Dealer's cards
+
+	print(f"\nThe Dealer's second card is {Dealer.cards[1]}, so he has a {Dealer.cards[0]} and a {Dealer.cards[1]}")
 	for item in Dealer.cards:
 		Dealer.value_count += item.value
+	print(f"\nThe Dealer's card's are worth {Dealer.value_count}")
+
+	#Dealer action
 
 	while Dealer.value_count < 21 and Dealer.value_count < reg_player.value_count :
 		hit_dealer(Playing_Deck.deal_one())
 		Dealer.value_count += Dealer_cards[-1]
+		print("The Dealer's new cards are:")
+		for item in Dealer.cards:
+			print(item)
+		print(f"They are now worth combined: {Dealer.value_count}")
 
-	if Dealer.value_count > reg_player.value_count:
-		print(f" The Dealer's card have a higher total value: {Dealer.value_count} than your cards {reg_player.value_count}. \nYou loose! ")
-		#Take money from the pot 
+	#checking results
+
+	if Dealer.value_count > reg_player.value_count and Dealer.value_count <= 21:
+		print(f" The Dealer's card have a higher total value: {Dealer.value_count} than your cards {reg_player.value_count}.")
+		print(f"You loose! Casino takes the money! You have {reg_player_acc.balance} left")
+		break
+
+
+	elif Dealer.value_count < reg_player.value_count and reg_player.value_count <= 21:
+		print("Your cards are worth more than the dealer's!")
+		reg_player_acc.add_money(player_bet_int*(3/2))
+		print(f" You win! You now have {reg_player_acc.balance}, {player_bet_int*(3/2)} more than before.")
+		break
 
 	elif Dealer.value_count > 21:
 		print(f"The Dealer's card's combined value is bigger than 21, it's: {reg_player.value_count} ")
-		print(" You win")
-		#deposit money into player account
+		reg_player_acc.add_money(player_bet_int*(3/2))
+		print(f" You win! You now have {reg_player_acc.balance}, {player_bet_int*(3/2)} more than before.")
+		break
+
 
 	elif reg_player.value_count == Dealer.value_count:
 		print(f"Your and the dealer's cards have the same value: {Dealer.value_count}. It's a draw")
+		reg_player_acc.add_money(player_bet_int)
+		print(f"You get your money back! You have {reg_player_acc.balance} left")
+		break
 
 
 
