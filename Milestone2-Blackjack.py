@@ -81,7 +81,7 @@ class Player():
 		for item in self.cards:
 			if item.rank =="Ace":
 				ace_count_player += 1
-		while self.value_count > 21 and ace_count_player != 0:
+		while self.value_count > 21 and ace_count_player > 0:
 			self.value_count -=10
 			ace_count_player -=1
 		else:
@@ -106,7 +106,7 @@ class Dealer():
 		for item in self.cards:
 			if item.rank =="Ace":
 				ace_count_dealer += 1
-		while self.value_count > 21 and ace_count_dealer != 0:
+		while self.value_count > 21 and ace_count_dealer > 0:
 			self.value_count -=10
 			ace_count_dealer-=1
 		else:
@@ -132,10 +132,17 @@ while game_on == True:
 	Playing_Deck = Deck()
 	Playing_Deck.shuffle_deck()
 
+	Dealer.cards = []
+	Dealer.value_count = 0
+
+	reg_player.cards = []
+	reg_player.value_count = 0
+
+
 	while True: 
 		print(f"\n{reg_player_acc}")
 		
-		while mon_enough == False:
+		while True:
 			player_bet = input("How much do you want to bet? ")
 
 			if player_bet.isdigit() == False:
@@ -143,6 +150,10 @@ while game_on == True:
 			else:
 				player_bet_int = int(player_bet)
 				reg_player_acc.withdraw_money(player_bet_int)
+				if mon_enough == False:
+					continue
+				else:
+					break
 
 
 
@@ -225,7 +236,7 @@ while game_on == True:
 		Dealer.aces_check_and_adjust()
 		
 		if Dealer.value_count > 21:
-			print(f"The Dealer's card's combined value is bigger than 21, it's: {reg_player.value_count} ")
+			print(f"The Dealer's card's combined value is bigger than 21, it's: {Dealer.value_count} ")
 			reg_player_acc.add_money(player_bet_int*(3/2))
 			print(f" You win! You now have {reg_player_acc.balance}, {player_bet_int*(3/2)} more than before.")
 			break
@@ -248,15 +259,16 @@ while game_on == True:
 			print(f"You get your money back! You have {reg_player_acc.balance} left")
 			break
 
-	game_decision = 'N'
+	game_decision = "unknown"
 	while game_decision != "Y" and game_decision != "N":
 		game_decision = input("Do you want to play another round? Yes(Y) or No(N)")
-		print("Please try again! Please input either 'Y' for Yes or 'N' for No")
 	if game_decision == "Y":
 		game_on = True
 
 	elif game_decision == "N":
 		game_on = False
+	else:
+		print("Please try again! Please input either 'Y' for Yes or 'N' for No")
 
 
 
